@@ -5,22 +5,30 @@ import cors from "cors";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
 import bodyParser from "body-parser";
+import { fileURLToPath } from "url";
 
+// 🛠️ Fix for __dirname with ES Modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Import Routes
 import videoroutes from './Routes/video.js';
 import userroutes from "./Routes/User.js";
 import commentroutes from './Routes/comment.js';
 
+// Config
 dotenv.config();
 const app = express();
 
+// Middleware
 app.use(cors());
 app.use(express.json({ limit: "30mb", extended: true }));
 app.use(express.urlencoded({ limit: "30mb", extended: true }));
 app.use(bodyParser.json());
 
-// ✅ Custom video streaming route
+// Video Streaming Route
 app.get('/uploads/:filename', (req, res) => {
-  const filePath = path.resolve('uploads', req.params.filename);
+  const filePath = path.resolve(__dirname, 'uploads', req.params.filename);
   const stat = fs.statSync(filePath);
   const fileSize = stat.size;
   const range = req.headers.range;
@@ -52,17 +60,19 @@ app.get('/uploads/:filename', (req, res) => {
   }
 });
 
-// ✅ All APIs
+// Routes
 app.use('/video', videoroutes);
 app.use('/user', userroutes);
 app.use('/comment', commentroutes);
 
-app.get('/', (req, res) => res.send("Server is working"));
+// Root route
+app.get('/', (req, res) => res.send("Server is working ✅"));
 
+// DB + Server Start
 const PORT = process.env.PORT || 5000;
 mongoose.connect(process.env.DB_URL)
   .then(() => {
-    console.log("MongoDB connected");
-    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+    console.log("✅ MongoDB connected");
+    app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
   })
-  .catch(err => console.log(err));
+  .catch(err => console.log("❌ MongoDB connection failed:", err));
