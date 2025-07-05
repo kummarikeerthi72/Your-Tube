@@ -3,11 +3,12 @@ import './Showvideo.css'
 import { Link } from 'react-router-dom'
 import moment from "moment"
 const Showvideo = ({vid}) => {
-    // console.log(vid)
+    // console.log(vid
   return (
         <>
       <Link to={`/videopage/${vid._id}`}>
-        <video src={`http://localhost:5000/${vid.filepath}`} className='video_ShowVideo'/>
+        <video src={`https://your-tube-vpzu.onrender.com${vid.filepath}`} className='video_ShowVideo' controls />
+
     </Link>
     <div className="video_description">
         <div className="Chanel_logo_App">

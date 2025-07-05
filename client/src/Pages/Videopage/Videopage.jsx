@@ -43,7 +43,8 @@ const Videopage = () => {
           <div className="video_display_screen_videoPage">
             {/* Streaming-compatible video */}
            <video
-  src={`http://localhost:5000/uploads/${vv.filename}`}  // Ensure it matches upload route
+  src={`https://your-tube-vpzu.onrender.com/uploads/${vv.filename}`}
+  // Ensure it matches upload route
   className="video_ShowVideo_videoPage"
   controls
   type="video/mp4"
@@ -87,7 +88,8 @@ const Videopage = () => {
                 .map((video) => (
                   <Link key={video._id} to={`/videopage/${video._id}`} className="moreVideoCard">
                     <video
-                      src={`http://localhost:5000/${video.filepath}`}
+                      src={`https://your-tube-vpzu.onrender.com/uploads/${vv.filename}`}
+
                       className="thumbnail"
                       muted
                     />
