@@ -23,9 +23,10 @@ dotenv.config();
 
 // Middleware
 app.use(cors({
-  origin: process.env.CLIENT_ORIGIN,
+  origin: "https://neon-lily-e0ec63.netlify.app",
   credentials: true
 }));
+
 app.use(express.json({ limit: "30mb", extended: true }));
 app.use(express.urlencoded({ limit: "30mb", extended: true }));
 app.use(bodyParser.json());
