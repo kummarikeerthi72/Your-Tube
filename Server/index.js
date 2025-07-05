@@ -1,32 +1,36 @@
 import express from "express";
-import path from "path";
-import fs from "fs";
 import cors from "cors";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
 import bodyParser from "body-parser";
+import path from "path";
+import fs from "fs";
 import { fileURLToPath } from "url";
 
-// 🛠️ Fix for __dirname with ES Modules
+// Routes
+import authRoutes from "./Routes/auth.js";
+import userRoutes from "./Routes/User.js";
+import commentRoutes from "./Routes/comment.js";
+import videoRoutes from "./Routes/video.js";
+
+// Setup __dirname for ES modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Import Routes
-import videoroutes from './Routes/video.js';
-import userroutes from "./Routes/User.js";
-import commentroutes from './Routes/comment.js';
-
-// Config
-dotenv.config();
+// Initialize App
 const app = express();
+dotenv.config();
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: process.env.CLIENT_ORIGIN,
+  credentials: true
+}));
 app.use(express.json({ limit: "30mb", extended: true }));
 app.use(express.urlencoded({ limit: "30mb", extended: true }));
 app.use(bodyParser.json());
 
-// Video Streaming Route
+// ✅ Serve video files from "uploads" folder
 app.get('/uploads/:filename', (req, res) => {
   const filePath = path.resolve(__dirname, 'uploads', req.params.filename);
   const stat = fs.statSync(filePath);
@@ -37,6 +41,7 @@ app.get('/uploads/:filename', (req, res) => {
     const parts = range.replace(/bytes=/, "").split("-");
     const start = parseInt(parts[0], 10);
     const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
+
     const chunkSize = (end - start) + 1;
     const file = fs.createReadStream(filePath, { start, end });
 
@@ -60,19 +65,27 @@ app.get('/uploads/:filename', (req, res) => {
   }
 });
 
-// Routes
-app.use('/video', videoroutes);
-app.use('/user', userroutes);
-app.use('/comment', commentroutes);
+// Route Middleware
+app.use("/auth", authRoutes);
+app.use("/user", userRoutes);
+app.use("/comment", commentRoutes);
+app.use("/video", videoRoutes);
 
-// Root route
-app.get('/', (req, res) => res.send("Server is working ✅"));
+// Default Route
+app.get("/", (req, res) => {
+  res.send("✅ Server is working!");
+});
 
-// DB + Server Start
+// MongoDB + Server Start
 const PORT = process.env.PORT || 5000;
-mongoose.connect(process.env.DB_URL)
-  .then(() => {
-    console.log("✅ MongoDB connected");
-    app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
-  })
-  .catch(err => console.log("❌ MongoDB connection failed:", err));
+mongoose.connect(process.env.DB_URL, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+})
+.then(() => {
+  console.log("✅ MongoDB connected");
+  app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+})
+.catch(err => {
+  console.error("❌ MongoDB connection failed:", err.message);
+});
